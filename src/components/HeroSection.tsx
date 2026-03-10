@@ -145,7 +145,7 @@ const TypewriterText = ({ text }: { text: string }) => {
 
 const HeroSection = () => (
   <section className="relative min-h-screen flex flex-col items-center justify-center pt-16 overflow-hidden">
-    {/* Full-screen Orb Background */}
+    {/* Full-screen Orb Background - constrained to hero section */}
     <Orb 
       hue={243}
       hoverIntensity={1.2}

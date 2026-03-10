@@ -203,9 +203,13 @@ export default function Orb({
 
     vec4 mainImage(vec2 fragCoord) {
       vec2 center = iResolution.xy * 0.5;
-      float size = min(iResolution.x, iResolution.y) * 0.8;
+      // Reduce the size by using a larger divisor (0.6 instead of 0.8 makes it smaller)
+      float size = min(iResolution.x, iResolution.y) * 0.6;
 
-      vec2 uv = (fragCoord - center) / size;
+      // Shift the center upward by adjusting the Y offset
+      vec2 adjustedCenter = vec2(center.x, center.y + iResolution.y * 0.1);
+      
+      vec2 uv = (fragCoord - adjustedCenter) / size;
 
       float angle = rot;
       float s = sin(angle);
@@ -282,8 +286,8 @@ export default function Orb({
       if (!container) return;
 
       const dpr = window.devicePixelRatio || 1;
-      const width = window.innerWidth;
-      const height = window.innerHeight;
+      const width = container.clientWidth;
+      const height = container.clientHeight;
 
       renderer.setSize(width * dpr, height * dpr);
 
@@ -307,19 +311,26 @@ export default function Orb({
     const rotationSpeed = 0.2;
 
     const handleMouseMove = e => {
-      // Normalize mouse position to 0-1 range
-      mousePos.current.x = e.clientX / window.innerWidth;
-      mousePos.current.y = 1.0 - (e.clientY / window.innerHeight); // Flip Y for WebGL
+      if (!container) return;
+      
+      const rect = container.getBoundingClientRect();
+      
+      // Normalize mouse position to 0-1 range within the hero section
+      mousePos.current.x = (e.clientX - rect.left) / rect.width;
+      mousePos.current.y = 1.0 - ((e.clientY - rect.top) / rect.height); // Flip Y for WebGL
 
       program.uniforms.mousePos.value = [mousePos.current.x, mousePos.current.y];
 
       // Calculate distance from center for hover effect
-      const centerX = window.innerWidth / 2;
-      const centerY = window.innerHeight / 2;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      
       const dist = Math.sqrt(
-        Math.pow(e.clientX - centerX, 2) + Math.pow(e.clientY - centerY, 2)
+        Math.pow(mouseX - centerX, 2) + Math.pow(mouseY - centerY, 2)
       );
-      const maxDist = Math.min(window.innerWidth, window.innerHeight) * 0.4;
+      const maxDist = Math.min(rect.width, rect.height) * 0.4;
 
       if (dist < maxDist) {
         targetHover = Math.max(0, 1 - (dist / maxDist));
@@ -334,8 +345,8 @@ export default function Orb({
       program.uniforms.mousePos.value = [0.5, 0.5];
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseleave', handleMouseLeave);
+    container.addEventListener('mousemove', handleMouseMove);
+    container.addEventListener('mouseleave', handleMouseLeave);
 
     let rafId;
 
@@ -370,8 +381,8 @@ export default function Orb({
       cancelAnimationFrame(rafId);
 
       window.removeEventListener('resize', resize);
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseleave', handleMouseLeave);
+      container.removeEventListener('mousemove', handleMouseMove);
+      container.removeEventListener('mouseleave', handleMouseLeave);
 
       if (container && gl.canvas && container.contains(gl.canvas)) {
         container.removeChild(gl.canvas);
@@ -381,7 +392,7 @@ export default function Orb({
     };
   }, [hue, hoverIntensity, rotateOnHover, forceHoverState, backgroundColor]);
 
-  return <div ref={ctnDom} className="orb-fullscreen" />;
+  return <div ref={ctnDom} className="orb-hero-container" />;
 }
 
 function hexToVec3(color) {
