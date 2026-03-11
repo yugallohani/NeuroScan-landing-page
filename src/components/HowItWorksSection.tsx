@@ -80,12 +80,6 @@ const TimelineStep = ({ step, index }: { step: typeof steps[0]; index: number })
         >
           <div className="w-2.5 h-2.5 rounded-full" style={{ background: "hsl(var(--glow-indigo))" }} />
         </motion.div>
-        <motion.span
-          className="mt-2 text-[10px] font-mono tracking-widest opacity-0"
-          style={{ opacity: 0, color: "hsl(var(--glow-indigo))" }}
-        >
-          {/* Numbers removed */}
-        </motion.span>
       </div>
 
       {/* Card — alternating left/right */}

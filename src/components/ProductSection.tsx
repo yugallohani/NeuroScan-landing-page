@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { MessageCircle, Brain, FileText, Users, Shield, Sparkles } from "lucide-react";
+import BrainVisualization from "./BrainVisualization";
 
 const features = [
   {
@@ -98,13 +99,13 @@ const ProductSection = () => {
 
   return (
     <section id="product" className="py-32 relative">
-      <div className="container max-w-3xl">
+      <div className="container max-w-7xl">
         <motion.div
           ref={ref}
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="mb-16"
+          className="mb-16 text-center lg:text-left"
         >
           <p className="text-xs uppercase tracking-[0.2em] text-glow-indigo mb-4">
             Product
@@ -116,10 +117,27 @@ const ProductSection = () => {
           </h2>
         </motion.div>
 
-        <div className="flex flex-col gap-6">
-          {features.map((feature, i) => (
-            <StackCard key={feature.title} feature={feature} index={i} total={features.length} />
-          ))}
+        {/* Two-column layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+          {/* Left column - Stacked Cards */}
+          <div className="flex flex-col gap-6">
+            {features.map((feature, i) => (
+              <StackCard key={feature.title} feature={feature} index={i} total={features.length} />
+            ))}
+          </div>
+
+          {/* Right column - Brain Animation */}
+          <div className="relative lg:sticky lg:top-32">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={isInView ? { opacity: 1, scale: 1 } : {}}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="relative h-[700px] w-[500px] mx-auto overflow-hidden"
+            >
+              {/* Brain Animation */}
+              <BrainVisualization />
+            </motion.div>
+          </div>
         </div>
       </div>
     </section>
